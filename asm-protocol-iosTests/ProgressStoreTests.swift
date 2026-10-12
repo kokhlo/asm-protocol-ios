@@ -89,14 +89,14 @@ final class ProgressStoreTests: XCTestCase {
         let store = ProgressStore(api: api, userKey: "test-key", defaults: makeSuite())
 
         await store.recordCompleted(lessonID: "mod0_lesson1", mode: "script_kiddie")
-        // после первого успеха ревизия сбрасывается на принятую сервером
-        api.putResult = .success(PutProgressResponse(acceptedRevision: 6, serverRevision: 6))
+        // после серии 409 клиент держит ревизию 6 (5+1); следующий новый режим -> 7
+        api.putResult = .success(PutProgressResponse(acceptedRevision: 7, serverRevision: 7))
 
         await store.recordCompleted(lessonID: "mod0_lesson1", mode: "console_cowboy")
 
-        XCTAssertEqual(store.clientRevision, 6)
+        XCTAssertEqual(store.clientRevision, 7)
         let last = api.putCalls.last!.body
-        XCTAssertEqual(last.clientRevision, 6)
+        XCTAssertEqual(last.clientRevision, 7)
         XCTAssertEqual(last.done["mod0_lesson1"]?.sorted(), ["console_cowboy", "script_kiddie"])
     }
 
@@ -123,8 +123,10 @@ final class ProgressStoreTests: XCTestCase {
 
         await store.recordCompleted(lessonID: "mod0_lesson1", mode: "script_kiddie")
 
-        // локально решено, ревизия не потеряна, ошибка зафиксирована
+        // локально решено, ревизия не потеряна; сбой фиксируется в lastError
         XCTAssertTrue(store.isCompleted(lessonID: "mod0_lesson1", mode: "script_kiddie"))
-        XCTAssertNil(store.lastError) // сетевые ошибки не роняют UI
+        XCTAssertEqual(store.clientRevision, 1)
+        XCTAssertNotNil(store.lastError)
+        XCTAssertTrue(lastError!.contains("СИНХРОНИЗАЦИЯ ОТЛОЖЕНА"))
     }
 }
