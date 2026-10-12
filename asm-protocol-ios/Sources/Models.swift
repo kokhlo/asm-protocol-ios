@@ -81,6 +81,8 @@ struct Exercise: Codable, Hashable {
     let codeLines: [String]?
     let items: [LocalizedText]?
     let accepted: [String]?
+    let expectedPatterns: [String]?
+    let forbiddenPatterns: [String]?
     let hint: LocalizedText?
     let explanation: LocalizedText?
 
@@ -88,6 +90,8 @@ struct Exercise: Codable, Hashable {
         case type, prompt, intro, options, items, accepted, hint, explanation
         case answerIndex = "answer_index"
         case codeLines = "code_lines"
+        case expectedPatterns = "expected_patterns"
+        case forbiddenPatterns = "forbidden_patterns"
     }
 
     enum Kind: String {
@@ -123,6 +127,9 @@ struct ProgressDocument: Codable, Equatable {
 }
 
 /// Контракт сервера: position == {moduleId: String, lesson: Int >= 1} или null.
+/// ПОЛЕ ОБЯЗАТЕЛЬНО В JSON ДАЖЕ ПРИ NULL: сервер требует ровно три ключа верхнего
+/// уровня, синтезированный Codable через encodeIfPresent ключ бы выкинул (баг,
+/// пойманный живым прогоном: 400 "exactly the fields").
 struct ProgressPosition: Codable, Hashable {
     let moduleId: String
     let lesson: Int
@@ -136,6 +143,13 @@ struct PutProgressBody: Codable, Equatable {
     enum CodingKeys: String, CodingKey {
         case done, position
         case clientRevision = "client_revision"
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(done, forKey: .done)
+        try container.encode(position, forKey: .position) // осознанно: ключ пишется и с null
+        try container.encode(clientRevision, forKey: .clientRevision)
     }
 }
 

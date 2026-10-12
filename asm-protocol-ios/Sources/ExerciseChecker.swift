@@ -46,7 +46,9 @@ struct ExerciseChecker {
         return .correct
     }
 
-    // MARK: fill / trace / write — сравнение с accepted (без учёта регистра/пробелов)
+    // MARK: fill / trace — сравнение с accepted.
+    // Нормализация как в веб-клиенте (packages/frontend/src/checks.ts):
+    // пробелы вырезаются целиком, регистр приводится к нижнему.
 
     static func checkText(_ exercise: Exercise, answer: String) -> CheckResult {
         guard let accepted = exercise.accepted, !accepted.isEmpty else {
@@ -62,9 +64,38 @@ struct ExerciseChecker {
         return .wrong(machineMessage: "ERR 0x03: ОТВЕТ НЕ ПРИНЯТ\nввод не совпал ни с одним эталоном")
     }
 
+    // MARK: write — статический анализ по образцу веб-клиента:
+    // все expected_patterns находятся в вводе (регистронезависимо),
+    // ни один forbidden_patterns не находится. Паттерны применяются к
+    // сырому вводу, без нормализации пробелов.
+
+    static func checkWrite(_ exercise: Exercise, answer: String) -> CheckResult {
+        guard let expected = exercise.expectedPatterns, !expected.isEmpty else {
+            return .wrong(machineMessage: "ERR 0x00: БИТЫЙ КОНТЕНТ\nwrite без expected_patterns — нужна песочница")
+        }
+        guard !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return .wrong(machineMessage: "ERR 0x03: ПУСТОЙ ОТВЕТ\nполе ввода не заполнено")
+        }
+        for pattern in expected {
+            if !matches(pattern, in: answer) {
+                return .wrong(machineMessage: "ERR 0x04: СТАТИЧЕСКИЙ АНАЛИЗ\nне найдено ожидаемое: /\(pattern)/i")
+            }
+        }
+        for pattern in exercise.forbiddenPatterns ?? [] {
+            if matches(pattern, in: answer) {
+                return .wrong(machineMessage: "ERR 0x04: СТАТИЧЕСКИЙ АНАЛИЗ\nзапрещённый шаблон: /\(pattern)/i")
+            }
+        }
+        return .correct
+    }
+
+    private static func matches(_ pattern: String, in text: String) -> Bool {
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { return false }
+        return regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)) != nil
+    }
+
     static func normalize(_ s: String) -> String {
-        let trimmed = s.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        return trimmed.split(whereSeparator: \.isWhitespace).joined(separator: " ")
+        s.split(whereSeparator: \.isWhitespace).joined().lowercased()
     }
 
     /// Единая точка входа: проверка по типу упражнения.
@@ -74,8 +105,10 @@ struct ExerciseChecker {
             if case .choice(let index) = answer { return checkChoice(exercise, selected: index) }
         case .order:
             if case .order(let seq) = answer { return checkOrder(exercise, order: seq) }
-        case .fill, .trace, .write:
+        case .fill, .trace:
             if case .text(let t) = answer { return checkText(exercise, answer: t) }
+        case .write:
+            if case .text(let t) = answer { return checkWrite(exercise, answer: t) }
         case nil:
             return .wrong(machineMessage: "ERR 0x00: БИТЫЙ КОНТЕНТ\nнеизвестный тип упражнения: \(exercise.type)")
         }
