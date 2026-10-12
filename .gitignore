@@ -1,0 +1,12 @@
+# Xcode
+build/
+DerivedData/
+*.xcodeproj
+xcuserdata/
+*.xcworkspace/xcuserdata/
+
+# macOS
+.DS_Store
+
+# api-пробы временные
+api-probe/

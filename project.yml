@@ -1,0 +1,53 @@
+name: ASMProtocol
+options:
+  bundleIdPrefix: expert.softsys
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  developmentLanguage: ru
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    CODE_SIGNING_ALLOWED: "NO"
+    CODE_SIGN_IDENTITY: ""
+targets:
+  ASMProtocol:
+    type: application
+    platform: iOS
+    sources:
+      - path: asm-protocol-ios/Sources
+      - path: asm-protocol-ios/Localizable.xcstrings
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: expert.softsys.asm-protocol
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UIUserInterfaceStyle: UIUserInterfaceStyleDark
+        ENABLE_PREVIEWS: "YES"
+        CODE_SIGN_STYLE: Automatic
+  ASMProtocolTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: asm-protocol-iosTests
+    dependencies:
+      - target: ASMProtocol
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: expert.softsys.asm-protocol.tests
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/ASMProtocol.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ASMProtocol"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  ASMProtocol:
+    build:
+      targets:
+        ASMProtocol: all
+        ASMProtocolTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: false
+      targets:
+        - ASMProtocolTests
