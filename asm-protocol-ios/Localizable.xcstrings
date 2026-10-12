@@ -1,0 +1,76 @@
+{
+  "sourceLanguage" : "ru",
+  "strings" : {
+    "app.title" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ASM://PROTOCOL"
+          }
+        }
+      }
+    },
+    "screen.modules.title" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Учебные терминалы"
+          }
+        }
+      }
+    },
+    "common.retry" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "[ ПОВТОРИТЬ СОЕДИНЕНИЕ ]"
+          }
+        }
+      }
+    },
+    "lesson.execute" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "[ ВЫПОЛНИТЬ ]"
+          }
+        }
+      }
+    },
+    "lesson.hint" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "[ ПОДСКАЗКА ]"
+          }
+        }
+      }
+    },
+    "lesson.solved" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✓ решено"
+          }
+        }
+      }
+    },
+    "lesson.clear" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "[ ОЧИСТИТЬ ПОСЛЕДОВАТЕЛЬНОСТЬ ]"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
