@@ -127,6 +127,6 @@ final class ProgressStoreTests: XCTestCase {
         XCTAssertTrue(store.isCompleted(lessonID: "mod0_lesson1", mode: "script_kiddie"))
         XCTAssertEqual(store.clientRevision, 1)
         XCTAssertNotNil(store.lastError)
-        XCTAssertTrue(lastError!.contains("СИНХРОНИЗАЦИЯ ОТЛОЖЕНА"))
+        XCTAssertTrue(store.lastError!.contains("СИНХРОНИЗАЦИЯ ОТЛОЖЕНА"))
     }
 }
