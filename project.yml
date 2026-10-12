@@ -17,13 +17,25 @@ targets:
     sources:
       - path: asm-protocol-ios/Sources
       - path: asm-protocol-ios/Localizable.xcstrings
+    info:
+      path: asm-protocol-ios/Info.plist
+      properties:
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIUserInterfaceStyle: Dark
+        CFBundleDisplayName: ASM://PROTOCOL
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: expert.softsys.asm-protocol
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
-        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
-        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-        INFOPLIST_KEY_UIUserInterfaceStyle: UIUserInterfaceStyleDark
         ENABLE_PREVIEWS: "YES"
         CODE_SIGN_STYLE: Automatic
   ASMProtocolTests:
