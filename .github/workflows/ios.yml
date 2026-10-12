@@ -1,0 +1,63 @@
+name: ios
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Сборка и тесты (iOS-симулятор)
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Выбор Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app
+
+      - name: Версии инструментов
+        run: |
+          xcodebuild -version
+          xcrun simctl list runtimes | grep -E '^iOS' || true
+
+      - name: Генерация проекта (xcodegen)
+        run: brew install xcodegen && xcodegen generate
+
+      - name: Список симуляторов (диагностика)
+        run: xcrun simctl list devices available | grep -E 'iPhone' | head -5
+
+      - name: Сборка приложения
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project ASMProtocol.xcodeproj \
+            -scheme ASMProtocol \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' \
+            -configuration Debug \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO | xcbeautify
+
+      - name: Юнит-тесты на симуляторе
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project ASMProtocol.xcodeproj \
+            -scheme ASMProtocol \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' \
+            -configuration Debug \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO | xcbeautify
+
+      - name: Артефакт сборки
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ASMProtocol-app
+          path: build/DerivedData/Build/Products/Debug-iphonesimulator/ASMProtocol.app
+          if-no-files-found: warn
