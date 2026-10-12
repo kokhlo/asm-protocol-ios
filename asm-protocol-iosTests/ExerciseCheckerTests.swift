@@ -8,7 +8,9 @@ final class ExerciseCheckerTests: XCTestCase {
                               options: [LocalizedText]? = nil,
                               answerIndex: Int? = nil,
                               items: [LocalizedText]? = nil,
-                              accepted: [String]? = nil) -> Exercise {
+                              accepted: [String]? = nil,
+                              expectedPatterns: [String]? = nil,
+                              forbiddenPatterns: [String]? = nil) -> Exercise {
         Exercise(type: type,
                  prompt: LocalizedText("вопрос"),
                  intro: nil,
@@ -17,8 +19,10 @@ final class ExerciseCheckerTests: XCTestCase {
                  codeLines: nil,
                  items: items,
                  accepted: accepted,
+                 expectedPatterns: expectedPatterns,
+                 forbiddenPatterns: forbiddenPatterns,
                  hint: nil,
-               explanation: nil)
+                 explanation: nil)
     }
 
     // MARK: choose / predict / translate
@@ -93,6 +97,39 @@ final class ExerciseCheckerTests: XCTestCase {
     func testTraceCorrect() {
         let e = makeExercise(type: "trace", accepted: ["10"])
         XCTAssertEqual(ExerciseChecker.check(e, answer: .text("10")), .correct)
+    }
+
+    // MARK: write — статический анализ по паттернам
+
+    func testWriteCorrect() {
+        let e = makeExercise(type: "write", expectedPatterns: ["free\\s*\\(\\s*a\\s*\\)\\s*;?"],
+                             forbiddenPatterns: ["free\\s*\\(\\s*&?a\\s*\\["])
+        XCTAssertEqual(ExerciseChecker.check(e, answer: .text("free(a);")), .correct)
+    }
+
+    func testWriteMissingExpectedRejected() {
+        let e = makeExercise(type: "write", expectedPatterns: ["free\\s*\\("])
+        if case .wrong(let msg) = ExerciseChecker.check(e, answer: .text("delete a")) {
+            XCTAssertTrue(msg.contains("СТАТИЧЕСКИЙ АНАЛИЗ"))
+        } else {
+            XCTFail("ожидали ошибку")
+        }
+    }
+
+    func testWriteForbiddenRejected() {
+        let e = makeExercise(type: "write", expectedPatterns: ["free\\s*\\("],
+                             forbiddenPatterns: ["free\\s*\\(\\s*&?a\\s*\\["])
+        // удовлетворяет expected, но содержит запрещённый поэлементный free
+        if case .wrong(let msg) = ExerciseChecker.check(e, answer: .text("free(&a[0])")) {
+            XCTAssertTrue(msg.contains("запрещённый шаблон"))
+        } else {
+            XCTFail("ожидали ошибку")
+        }
+    }
+
+    func testWriteCaseInsensitive() {
+        let e = makeExercise(type: "write", expectedPatterns: ["template\\s*<\\s*>"])
+        XCTAssertEqual(ExerciseChecker.check(e, answer: .text("TEMPLATE<>")), .correct)
     }
 
     // MARK: защита от битого контента
