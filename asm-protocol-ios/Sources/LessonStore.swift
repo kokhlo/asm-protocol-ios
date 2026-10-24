@@ -44,9 +44,47 @@ final class LessonStore {
         selectedLesson?.modes[mode]
     }
 
-    var isSolved: Bool {
+    var isSolved: Bool { isSolved(mode: mode) }
+
+    /// Решён ли выбранный урок в режиме `m` — метка «✓ решено» у каждой кнопки режима своя.
+    func isSolved(mode m: String) -> Bool {
         guard let lesson = selectedLesson else { return false }
-        return progress.isCompleted(lessonID: lesson.lessonID, mode: mode)
+        return progress.isCompleted(lessonID: lesson.lessonID, mode: m)
+    }
+
+    /// Идентичность упражнения для SwiftUI: смена урока или режима пересоздаёт его вью.
+    var exerciseIdentity: String { "\(selectedLessonID ?? "")#\(mode)" }
+
+    // MARK: - Ввод, производный от answer (единственный источник правды)
+
+    var selectedOption: Int? {
+        if case .choice(let index) = answer { return index }
+        return nil
+    }
+
+    var textAnswer: String {
+        if case .text(let text) = answer { return text }
+        return ""
+    }
+
+    var orderPicks: [Int] {
+        if case .order(let picks) = answer { return picks }
+        return []
+    }
+
+    /// Порядок показа пула шагов order: «колесо», как в вебе, а не авторский порядок.
+    var orderPool: [Int] {
+        ExerciseChecker.initialOrder(exercise?.items?.count ?? 0)
+    }
+
+    func toggleOrderPick(_ index: Int) {
+        var picks = orderPicks
+        if let pos = picks.firstIndex(of: index) {
+            picks.remove(at: pos)
+        } else {
+            picks.append(index)
+        }
+        answer = .order(picks)
     }
 
     func selectLesson(_ id: String) {

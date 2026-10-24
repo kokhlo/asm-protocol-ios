@@ -63,7 +63,7 @@ struct ModulesScreen: View {
 
     private var list: some View {
         List {
-            ForEach(store.grouped, id: \.track) { group in
+            ForEach(store.sections) { group in
                 Section {
                     ForEach(group.modules) { module in
                         NavigationLink(value: module) {
@@ -72,10 +72,10 @@ struct ModulesScreen: View {
                     }
                 } header: {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("── \(group.track.title) ──")
+                        Text("── \(group.title) ──")
                             .font(Term.mono(13, weight: .semibold))
                             .foregroundStyle(Term.amber)
-                        Text(group.track.subtitle)
+                        Text(group.subtitle)
                             .font(Term.mono(11))
                             .foregroundStyle(Term.dim)
                     }

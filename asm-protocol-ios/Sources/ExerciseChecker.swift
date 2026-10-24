@@ -31,6 +31,14 @@ struct ExerciseChecker {
 
     // MARK: order — правильный порядок совпадает с исходным порядком items
 
+    /// Стартовая перестановка пула, как `initialOrder` в вебе: детерминированное «колесо» —
+    /// сдвиг на половину. Для n ≥ 2 ни один шаг не стоит на своём месте.
+    static func initialOrder(_ count: Int) -> [Int] {
+        guard count > 0 else { return [] }
+        let shift = count / 2
+        return (0..<count).map { ($0 + shift) % count }
+    }
+
     static func checkOrder(_ exercise: Exercise, order: [Int]) -> CheckResult {
         guard let items = exercise.items, !items.isEmpty else {
             return .wrong(machineMessage: "ERR 0x00: БИТЫЙ КОНТЕНТ\nупражнение без items")
