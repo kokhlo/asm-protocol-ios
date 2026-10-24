@@ -43,6 +43,7 @@ private struct LessonContent: View {
 
                 if let exercise = store.exercise {
                     ExerciseView(exercise: exercise, store: store)
+                        .id(store.exerciseIdentity)
                 } else {
                     ErrorBlockView(message: "ERR 0x00: БИТЫЙ КОНТЕНТ\nв уроке нет режима \(store.mode)")
                 }
@@ -61,7 +62,7 @@ private struct LessonContent: View {
                     VStack(spacing: 2) {
                         Text(m)
                             .font(Term.mono(13, weight: .medium))
-                        if store.isSolved {
+                        if store.isSolved(mode: m) {
                             Text("✓ решено")
                                 .font(Term.mono(10))
                                 .foregroundStyle(Term.green)
@@ -87,9 +88,12 @@ struct ExerciseView: View {
     let exercise: Exercise
     @Bindable var store: LessonStore
 
-    @State private var selectedOption: Int?
-    @State private var textAnswer: String = ""
-    @State private var orderPicks: [Int] = []
+    // Состояние ввода живёт в store.answer: смена режима сбрасывает его целиком.
+    private var selectedOption: Int? { store.selectedOption }
+    private var orderPicks: [Int] { store.orderPicks }
+    private var textAnswer: Binding<String> {
+        Binding(get: { store.textAnswer }, set: { store.setAnswer(.text($0)) })
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -133,12 +137,6 @@ struct ExerciseView: View {
             }
         }
         .panel()
-        .onAppear {
-            selectedOption = nil
-            textAnswer = ""
-            orderPicks = []
-            if case .choice = store.answer { selectedOption = nil }
-        }
     }
 
     // MARK: - Вводы по типам
@@ -148,7 +146,6 @@ struct ExerciseView: View {
         VStack(spacing: 6) {
             ForEach(Array((exercise.options ?? []).enumerated()), id: \.offset) { pair in
                 Button {
-                    selectedOption = pair.offset
                     store.setAnswer(.choice(pair.offset))
                 } label: {
                     HStack(alignment: .top, spacing: 8) {
@@ -184,7 +181,7 @@ struct ExerciseView: View {
                     .foregroundStyle(Term.dim)
             } else {
                 VStack(spacing: 4) {
-                    ForEach(Array(orderPicks.enumerated()), id: \.element) { pair in
+                    ForEach(Array(orderPicks.enumerated()), id: \.offset) { pair in
                         HStack(alignment: .top, spacing: 8) {
                             Text("\(pair.offset + 1).")
                                 .foregroundStyle(Term.green)
@@ -202,16 +199,16 @@ struct ExerciseView: View {
                         .strokeBorder(Term.border, lineWidth: 1)
                 )
             }
-            // пул шагов
-            ForEach(Array(items.enumerated()), id: \.element) { pair in
-                let picked = orderPicks.contains(pair.offset)
+            // пул шагов: перемешан «колесом», id — индекс шага (тексты могут совпадать)
+            ForEach(store.orderPool, id: \.self) { index in
+                let picked = orderPicks.contains(index)
                 Button {
-                    togglePick(pair.offset)
+                    store.toggleOrderPick(index)
                 } label: {
                     HStack(alignment: .top, spacing: 8) {
                         Text("::")
                             .foregroundStyle(Term.dim)
-                        Text(pair.element.text)
+                        Text(items[index].text)
                             .foregroundStyle(picked ? Term.dim : Term.paper)
                     }
                     .font(Term.mono(13))
@@ -228,7 +225,6 @@ struct ExerciseView: View {
             }
             if !orderPicks.isEmpty {
                 Button {
-                    orderPicks = []
                     store.setAnswer(.order([]))
                 } label: {
                     Text("[ ОЧИСТИТЬ ПОСЛЕДОВАТЕЛЬНОСТЬ ]")
@@ -243,7 +239,7 @@ struct ExerciseView: View {
     @ViewBuilder
     private var TextInput: some View {
         VStack(alignment: .leading, spacing: 4) {
-            TextField("ответ", text: $textAnswer)
+            TextField("ответ", text: textAnswer)
                 .font(Term.mono(15))
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
@@ -253,9 +249,6 @@ struct ExerciseView: View {
                     RoundedRectangle(cornerRadius:  traceBorder)
                         .strokeBorder(checkTint, lineWidth: 1)
                 )
-                .onChange(of: textAnswer) { _, new in
-                    store.setAnswer(.text(new))
-                }
             Text(exercise.kind?.textInputCaption ?? "")
                 .font(Term.mono(11))
                 .foregroundStyle(Term.dim)
@@ -324,15 +317,6 @@ struct ExerciseView: View {
             RoundedRectangle(cornerRadius: 6)
                 .strokeBorder(Term.amber.opacity(0.6), lineWidth: 1)
         )
-    }
-
-    private func togglePick(_ index: Int) {
-        if let pos = orderPicks.firstIndex(of: index) {
-            orderPicks.remove(at: pos)
-        } else {
-            orderPicks.append(index)
-        }
-        store.setAnswer(.order(orderPicks))
     }
 }
 
