@@ -241,7 +241,7 @@ struct ExerciseView: View {
     }
 
     @ViewBuilder
-private var TextInput: some View {
+    private var TextInput: some View {
         VStack(alignment: .leading, spacing: 4) {
             TextField("ответ", text: $textAnswer)
                 .font(Term.mono(15))
@@ -256,7 +256,7 @@ private var TextInput: some View {
                 .onChange(of: textAnswer) { _, new in
                     store.setAnswer(.text(new))
                 }
-            Text("// ввод сравнивается с эталоном без учёта регистра")
+            Text(exercise.kind?.textInputCaption ?? "")
                 .font(Term.mono(11))
                 .foregroundStyle(Term.dim)
         }
@@ -333,5 +333,18 @@ private var TextInput: some View {
             orderPicks.append(index)
         }
         store.setAnswer(.order(orderPicks))
+    }
+}
+
+extension Exercise.Kind {
+    /// Подпись под полем ввода. Слово «регистр» не используем: в курсе про железо
+    /// оно читается как регистр процессора (жалоба «в Ada про регистры»).
+    var textInputCaption: String {
+        switch self {
+        case .write:
+            return "// код проверяется статическим анализом по шаблонам"
+        default:
+            return "// пробелы и строчные/заглавные буквы не важны"
+        }
     }
 }

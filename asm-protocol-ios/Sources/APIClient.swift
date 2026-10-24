@@ -31,13 +31,23 @@ protocol ProgressAPI: Sendable {
     func deleteProgress(key: String) async throws
 }
 
-/// Тонкий клиент живого API стенда ASM://PROTOCOL (http://202.71.13.244).
+/// Тонкий клиент живого API ASM://PROTOCOL (https://asm-protocol.tech, TLS на Caddy).
 /// Только URLSession + Codable, без сторонних зависимостей.
 struct APIClient: ProgressAPI {
+    /// Адрес API по умолчанию: build setting `ASM_API_BASE_URL` → ключ Info.plist.
+    /// Резерв — прод-адрес, если ключа нет или он не https (ATS включён, http не пройдёт).
+    static let defaultBaseURL: URL = {
+        if let raw = Bundle.main.object(forInfoDictionaryKey: "ASM_API_BASE_URL") as? String,
+           let url = URL(string: raw), url.scheme == "https", url.host != nil {
+            return url
+        }
+        return URL(string: "https://asm-protocol.tech")!
+    }()
+
     let baseURL: URL
     let session: URLSession
 
-    init(baseURL: URL = URL(string: "http://202.71.13.244")!,
+    init(baseURL: URL = APIClient.defaultBaseURL,
          session: URLSession = .shared) {
         self.baseURL = baseURL
         self.session = session

@@ -71,9 +71,14 @@ struct ModulesScreen: View {
                         }
                     }
                 } header: {
-                    Text("── \(group.track.title) ──")
-                        .font(Term.mono(13, weight: .semibold))
-                        .foregroundStyle(Term.amber)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("── \(group.track.title) ──")
+                            .font(Term.mono(13, weight: .semibold))
+                            .foregroundStyle(Term.amber)
+                        Text(group.track.subtitle)
+                            .font(Term.mono(11))
+                            .foregroundStyle(Term.dim)
+                    }
                 }
             }
         }

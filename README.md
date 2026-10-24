@@ -6,8 +6,8 @@
 
 ## Что внутри
 
-- **Треки и модули.** Список модулей группируется по трекам (ПРОЛОГ → ASM → C → C++ → ADA),
-  данные — из живого curriculum-API стенда.
+- **Треки и модули.** Список модулей группируется по трекам (ПРОЛОГ → ASM → C → C++ → ADA →
+  СИСТЕМЫ), у каждой секции подзаголовок; данные — из живого curriculum-API.
 - **Урок с режимами.** У каждого урока два уровня абстракции: `script_kiddie` (концепты) и
   `console_cowboy` (bare metal). Переключатель режима — на экране урока.
 - **Шесть типов упражнений.** `choose`, `predict`, `translate` (выбор варианта),
@@ -99,10 +99,9 @@ xcodebuild test \
 - iOS 17+, SwiftUI, `@Observable`; сеть — `URLSession` + `Codable`.
 - **Ноль сторонних зависимостей.** SPM-манифест отсутствует намеренно.
 - Локализация: русский базовый, `asm-protocol-ios/Localizable.xcstrings`.
-- API стенда: `http://202.71.13.244` — curriculum (`/api/v1/curriculum/*`) и progress
-  (`/api/v1/progress/{user-key}`) сервисы. Оба живут за одним Caddy на хостинге.
-  > HTTP (не HTTPS) → работает только при выключенном ATS. Для App Store понадобится
-  > TLS-терминация на Caddy — см. roadmap.
+- API: `https://asm-protocol.tech` — curriculum (`/api/v1/curriculum/*`) и progress
+  (`/api/v1/progress/{user-key}`) сервисы за одним Caddy с TLS. Адрес — build setting
+  `ASM_API_BASE_URL` в `project.yml` (попадает в Info.plist); ATS включён, исключений нет.
 
 ## Roadmap
 
@@ -113,7 +112,6 @@ xcodebuild test \
 - `position` в progress-API (продолжить с места) — сервер ждёт `{moduleId, lesson:int}`,
   формат `lesson` (int vs lesson_id) уточняется с бэкендом
 - [ ] Первый билд в TestFlight — после шагов из раздела «CI и TestFlight»
-- [ ] TLS на стенде + включение ATS по умолчанию
 
 ## Лицензия
 
