@@ -7,13 +7,21 @@ options:
   developmentLanguage: ru
 settings:
   base:
-    SWIFT_VERSION: "5.10"
-    CODE_SIGNING_ALLOWED: "NO"
-    CODE_SIGN_IDENTITY: ""
+    # Режим языка Swift 5 (допустимые значения 4.0/4.2/5.0/6.0; "5.10" — не режим).
+    SWIFT_VERSION: "5.0"
     # Версия и номер билда — build settings, а не литералы в Info.plist:
     # CI переопределяет CURRENT_PROJECT_VERSION номером билда TestFlight (200000+).
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
+  configs:
+    # Debug (симулятор, тесты в CI) — без подписи, как раньше.
+    Debug:
+      CODE_SIGNING_ALLOWED: "NO"
+      CODE_SIGN_IDENTITY: ""
+    # Release — автоматическая подпись командой Ивана, как в Kosherno. CI архивирует
+    # без подписи (CODE_SIGNING_ALLOWED=NO в командной строке) и подписывает при экспорте.
+    Release:
+      DEVELOPMENT_TEAM: 7LP48D3553
 targets:
   ASMProtocol:
     type: application
@@ -21,6 +29,9 @@ targets:
     sources:
       - path: asm-protocol-ios/Sources
       - path: asm-protocol-ios/Localizable.xcstrings
+      - path: asm-protocol-ios/Assets.xcassets
+      - path: asm-protocol-ios/PrivacyInfo.xcprivacy
+        buildPhase: resources
     info:
       path: asm-protocol-ios/Info.plist
       properties:
@@ -35,6 +46,8 @@ targets:
         CFBundleDisplayName: ASM://PROTOCOL
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        # Только HTTPS и системная криптография — экспортный вопрос не висит на каждом билде.
+        ITSAppUsesNonExemptEncryption: false
         # Адрес API — build setting ASM_API_BASE_URL; только https, ATS без исключений.
         ASM_API_BASE_URL: "$(ASM_API_BASE_URL)"
     settings:
@@ -42,6 +55,9 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: expert.softsys.asm-protocol
         ASM_API_BASE_URL: "https://asm-protocol.tech"
         ENABLE_PREVIEWS: "YES"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # Только iPhone: универсальная сборка требует всех iPad-ориентаций и iPad-скриншотов.
+        TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
   ASMProtocolTests:
     type: bundle.unit-test
@@ -55,6 +71,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: expert.softsys.asm-protocol.tests
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/ASMProtocol.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ASMProtocol"
         BUNDLE_LOADER: "$(TEST_HOST)"
+        TARGETED_DEVICE_FAMILY: "1"
 schemes:
   ASMProtocol:
     build:

@@ -12,8 +12,11 @@ SwiftUI-клиент ASM://PROTOCOL. Публичный репозиторий, 
 - Push в `main` после зелёных тестов выгружает билд в TestFlight (схема Kosherno,
   `kokhlo/kosher-gpt`). Ручной запуск выгружает только из `main`. Секреты:
   `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`,
-  `APP_STORE_CONNECT_PRIVATE_KEY_BASE64`; Team ID `7LP48D3553` — в workflow и
+  `APP_STORE_CONNECT_PRIVATE_KEY_BASE64`; Team ID `7LP48D3553` — в workflow, Release-конфиге `project.yml` и
   `ci/ExportOptions.plist`. Подробности и ручные шаги Apple — README, раздел «CI и TestFlight».
+- Иконка — `tools/make_app_icon.py` → `Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png`.
+  Новый required-reason API (file timestamp, systemBootTime, diskSpace и т. п.) — дописать
+  в `PrivacyInfo.xcprivacy`; тест `ReleaseReadinessTests` сверяет манифест.
 - Секреты не печатать и не коммитить. Архив в CI собирается без подписи; подписывает
   экспорт облачным Apple Distribution-сертификатом — не добавлять подпись в archive.
 - Ветки от `origin/main`, PR в `main`, коммиты `type(scope): описание` по-русски.

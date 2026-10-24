@@ -46,7 +46,7 @@ jobs:
         run: xcodegen generate
 
       - name: Проверка plist-файлов
-        run: plutil -lint ci/ExportOptions.plist asm-protocol-ios/Info.plist
+        run: plutil -lint ci/ExportOptions.plist asm-protocol-ios/Info.plist asm-protocol-ios/PrivacyInfo.xcprivacy
 
       # Набор симуляторов зависит от образа раннера: берём самый свежий iPhone,
       # а не конкретную модель, которую следующий образ может убрать.

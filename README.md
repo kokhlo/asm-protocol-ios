@@ -53,6 +53,11 @@ xcodebuild test \
 Версия приложения — build setting `MARKETING_VERSION` в `project.yml`, номер билда —
 `CURRENT_PROJECT_VERSION` (в Info.plist только подстановки `$(...)`).
 
+Release-сборка: только iPhone (`TARGETED_DEVICE_FAMILY=1`), автоматическая подпись командой
+`7LP48D3553` (как в Kosherno), `ITSAppUsesNonExemptEncryption=NO`, privacy manifest
+`asm-protocol-ios/PrivacyInfo.xcprivacy` (UserDefaults → `CA92.1`, трекинга нет).
+AppIcon генерируется скриптом `tools/make_app_icon.py` (pixel-art `>_`, без альфы).
+
 ## CI и TestFlight
 
 Один workflow [`.github/workflows/ios.yml`](.github/workflows/ios.yml), по схеме Kosherno
