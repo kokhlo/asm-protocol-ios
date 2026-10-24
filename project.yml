@@ -35,11 +35,12 @@ targets:
         CFBundleDisplayName: ASM://PROTOCOL
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
-        NSAppTransportSecurity:
-          NSAllowsArbitraryLoads: true
+        # Адрес API — build setting ASM_API_BASE_URL; только https, ATS без исключений.
+        ASM_API_BASE_URL: "$(ASM_API_BASE_URL)"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: expert.softsys.asm-protocol
+        ASM_API_BASE_URL: "https://asm-protocol.tech"
         ENABLE_PREVIEWS: "YES"
         CODE_SIGN_STYLE: Automatic
   ASMProtocolTests:
