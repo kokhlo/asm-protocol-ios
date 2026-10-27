@@ -1,3 +1,8 @@
+> **Репозиторий в архиве (27.10.2026).** Это дубль. Канонический iOS-клиент ASM://PROTOCOL —
+> [niukanen1/asm-protocol-ios](https://github.com/niukanen1/asm-protocol-ios) (приложение Ивана,
+> публикуется в TestFlight). Функциональный слой отсюда (API, уроки, проверка ответов, прогресс)
+> перенесён туда в [PR #1](https://github.com/niukanen1/asm-protocol-ios/pull/1).
+
 # ASM://PROTOCOL — iOS
 
 Мобильный клиент образовательного портала [asm-protocol](https://github.com/kokhlo/asm-protocol):
